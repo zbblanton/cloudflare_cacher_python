@@ -44,13 +44,19 @@ def scan_files():
           web_data[os.path.join(subdir, file)] = current_obj
           i = i + 1
 
-  #Scan for removals
+  #Scan for removals or changes
   removal_list = []
   for key, value in web_data.iteritems():
    if not os.path.isfile(key):
     files_changed = True
     log("Removing: " + key)
     removal_list.append(key)
+   else: #Check for file updates
+    if os.path.getmtime(os.path.join(subdir, key)) > float(value['date']):
+     files_changed = True
+     value['date'] = os.path.getmtime(os.path.join(subdir, key))
+     value['cached_date'] = 0.0
+     log("Changed: " + key)
   for i in range(len(removal_list)):
    print(removal_list)
    web_data.pop(removal_list[i], None)
